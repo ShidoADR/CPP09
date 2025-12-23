@@ -19,7 +19,7 @@ BitcoinExchange &	BitcoinExchange::operator=(BitcoinExchange const & copy)
 
 BitcoinExchange::BitcoinExchange(std::string const & file)
 {
-	if (readData() == false && printExchange(file) == false)
+	if (readData() == false || printExchange(file) == false)
 		exit(EXIT_FAILURE);
 }
 

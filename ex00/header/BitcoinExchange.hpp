@@ -3,8 +3,10 @@
 #include <iostream>
 #include <map>
 #include <fstream>
+#include <cstdlib>
+#include <cctype>
 
-# define DATE {{31}, {28}, {31}, {30}, {31}, {30}, {31}, {31}, {30}, {31}, {30}, {31}}
+# define DATE {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31}
 
 class BitcoinExchange
 {
@@ -21,6 +23,7 @@ class BitcoinExchange
 		std::map<std::string, std::string>	_data;
 
 		bool								readData();
+		bool								printExchange(std::string const &);
 		bool								openFile(std::string const &, std::ifstream &);
 
 };

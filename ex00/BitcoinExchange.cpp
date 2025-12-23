@@ -156,11 +156,6 @@ bool	BitcoinExchange::readData()
 			std::cout << "Error: invalid value => " << value << std::endl;
 			continue;
 		}
-		else if (atoi(value.c_str()) > 1000)
-		{
-			std::cout << "Error: too large a number." << std::endl;
-			continue;
-		}
 		else if (atof(value.c_str()) < 0)
 		{
 			std::cout << "Error: not a positive number." << std::endl;

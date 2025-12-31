@@ -22,7 +22,7 @@ int main(int argc, char **argv)
 	{
 		PmergeMe pmergeMe(input);
 
-		std::cout << "Before: " << pmergeMe << std::endl;
+		// std::cout << "Before: " << pmergeMe << std::endl;
 	}
 	catch(const std::exception& e)
 	{

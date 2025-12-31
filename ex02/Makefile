@@ -1,4 +1,4 @@
-NAME =   PmergeMe
+NAME = PmergeMe
 
 COMPILER = c++
 

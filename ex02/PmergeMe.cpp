@@ -85,11 +85,8 @@ PmergeMe::PmergeMe(std::string const & input)
 
 void	PmergeMe::makePair(std::vector<int> const & data, std::vector<int> & main, std::vector<int> & pend)
 {
-	size_t				size = data.size();
+	size_t				size = data.size() % 2 == 0 ? data.size() : data.size() - 1;
 	std::vector<int>	temp;
-
-	if (data.size() % 2 != 0)
-		size -= 1;
 
 	for (size_t i = 0; i < size; i += 2)
 	{
@@ -114,7 +111,7 @@ std::vector<int> PmergeMe::jacobsthalSequence(size_t n)
 	int					prevJacobsthal = 0;
 	size_t				jacobsthal = 1;
 
-	while (jacobsthal < n)
+	while (jacobsthal <= n)
 	{	
 		for (int i = jacobsthal; i > prevJacobsthal; i--)
 			sequence.push_back(i);
@@ -124,10 +121,9 @@ std::vector<int> PmergeMe::jacobsthalSequence(size_t n)
 		prevJacobsthal = temp;
 	}
 
-	if (sequence.size() < n)
+	if (jacobsthal > n && sequence.size() < n)
 	{
-		int	last = sequence.empty() ? 0 : sequence.back();
-		for (int i = n; i > last; i--)
+		for (int i = n; i > prevJacobsthal; i--)
 			sequence.push_back(i);
 	}
 	return (sequence);
@@ -136,10 +132,9 @@ std::vector<int> PmergeMe::jacobsthalSequence(size_t n)
 void	PmergeMe::updatePend(std::vector<int> & pend, std::vector<int> & main, std::vector<int> & main_pair)
 {
 	if (pend.empty())
-		return;
+		return ;
 
 	std::vector<int>	pend_ordered;
-        pend_ordered.reserve(pend.size());
 
 	for (size_t i = 0; i < main.size(); ++i)
 	{
@@ -188,12 +183,19 @@ std::vector<int> PmergeMe::mergeInsertVector(std::vector<int> const & data)
 
 	main_pair = main;
 
+	// std::cout << "Main: ";
+	// for (size_t i = 0; i < main.size(); i++)
+	// 	std::cout << main[i] << " ";
+	// std::cout << std::endl;
+	// if (left != -1)
+	// 	std::cout << "Leftover: " << left << std::endl;
+
 	main.insert(main.begin(), pend[0]);
+
 
 	for (size_t i = 1; i < jacobsthal.size(); i++)
 	{
 		std::vector<int>::iterator	end = std::find(main.begin(), main.end(), main_pair[jacobsthal[i] - 1]);
-		// std::cout << "aaaa " << *end << " " << pend[jacobsthal[i] - 1] <<  std::endl; 
 		std::vector<int>::iterator	pos = std::lower_bound(main.begin(), end, pend[jacobsthal[i] - 1]);
 		
 		main.insert(pos, pend[jacobsthal[i] - 1]);
@@ -205,20 +207,20 @@ std::vector<int> PmergeMe::mergeInsertVector(std::vector<int> const & data)
 		main.insert(pos, left);
 	}
 
-	std::cout << "Main After: ";
-	for (size_t i = 0; i < main.size(); i++)
-		std::cout << main[i] << " ";
-	std::cout << std::endl;
+	// std::cout << "Main After: ";
+	// for (size_t i = 0; i < main.size(); i++)
+	// 	std::cout << main[i] << " ";
+	// std::cout << std::endl;
 
-	std::cout << "Pend After: ";
-	for (size_t i = 0; i < pend.size(); i++)
-		std::cout << pend[i] << " ";
-	std::cout << std::endl;
+	// std::cout << "Pend After: ";
+	// for (size_t i = 0; i < pend.size(); i++)
+	// 	std::cout << pend[i] << " ";
+	// std::cout << std::endl;
 
 
-		std::cout << "Jacobsthal: ";
-	for (size_t i = 0; i < jacobsthal.size(); i++)
-		std::cout << jacobsthal[i] << " ";
-	std::cout << std::endl;
+	// 	std::cout << "Jacobsthal: ";
+	// for (size_t i = 0; i < jacobsthal.size(); i++)
+	// 	std::cout << jacobsthal[i] << " ";
+	// std::cout << std::endl;
 	return (main);
 }

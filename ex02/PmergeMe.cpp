@@ -37,15 +37,63 @@ const std::vector<int> & PmergeMe::getData() const
 	return (_data);
 }
 
+const std::list<int> &	PmergeMe::getListData() const
+{
+	return (_listData);
+}
+
+const std::vector<int> &	PmergeMe::getSortedData() const
+{
+	return (_sortedData);
+}
+
+const std::list<int> &	PmergeMe::getSortedListData() const
+{
+	return (_sortedListData);
+}
+
+double	PmergeMe::getTimeForList() const
+{
+	return (_timeForList);
+}
+
+double	PmergeMe::getTimeForVector() const
+{
+	return (_timeForVector);
+}
+
 std::ostream &	operator<<(std::ostream & output, PmergeMe const & instance)
 {
-	const std::vector<int> data = instance.getData();
+	std::vector<int>	data = instance.getData();
+	std::vector<int>	sortedData = instance.getSortedData();
+	std::list<int>		sortedListData = instance.getSortedListData();
+	double 			timeForVector = instance.getTimeForVector();
+	double 			timeForList = instance.getTimeForList();
 
-	for (size_t i = 0; i < data.size(); i++)
+
+	if (isSorted(sortedData) == false || isSorted(sortedListData) == false)
+		output << "Error: Data is not sorted correctly." << std::endl;
+	else
 	{
-		output << data[i];
-		if (i < data.size() - 1)
-			output << " ";
+		output << "Before: ";
+		for (size_t i = 0; i < data.size(); i++)
+		{
+			output << data[i];
+			if (i < data.size() - 1)
+				output << " ";
+		}
+
+		output << std::endl << "After:  ";
+		for (size_t i = 0; i < sortedData.size(); i++)
+		{
+			output << sortedData[i];
+			if (i < sortedData.size() - 1)
+				output << " ";
+		}
+		output << std::endl;
+
+		output << "Time to process a range of " << data.size() << " elements with std::vector : " << std::fixed << std::setprecision(6) << timeForVector << " s" << std::endl;
+		output << "Time to process a range of " << data.size() << " elements with std::list   : " << std::fixed << std::setprecision(6) << timeForList << " s" << std::endl;
 	}
 
 	return (output);
@@ -70,17 +118,23 @@ PmergeMe::PmergeMe(std::string const & input)
 			throw std::invalid_argument("Error: " + token + " is a duplicate number");
 
 		_data.push_back(static_cast<int>(num));
-		_dequeData.push_back(static_cast<int>(num));
+		_listData.push_back(static_cast<int>(num));
 	}
 
 	if (_data.empty() == true)
 		throw std::invalid_argument("Error: no valid numbers provided");
 
-	std::vector<int>	merged = mergeInsertVector(_data);
+	std::clock_t		start = std::clock();
+	_sortedData = mergeInsertVector(_data);
+	std::clock_t		end = std::clock();
+	_timeForVector = static_cast<double>(end - start) / CLOCKS_PER_SEC;
 
-	for (int i = 0; i < static_cast<int>(merged.size()); i++)
-		std::cout << " " << merged[i];
-	std::cout << std::endl;
+	start = std::clock();	
+	_sortedListData = mergeInsertList(_listData);
+	end = std::clock();
+	_timeForList = static_cast<double>(end - start) / CLOCKS_PER_SEC;
+
+
 }
 
 void	PmergeMe::makePair(std::vector<int> const & data, std::vector<int> & main, std::vector<int> & pend)
@@ -108,8 +162,8 @@ void	PmergeMe::makePair(std::vector<int> const & data, std::vector<int> & main, 
 std::vector<int> PmergeMe::jacobsthalSequence(size_t n)
 {
 	std::vector<int>	sequence;
-	int					prevJacobsthal = 0;
 	size_t				jacobsthal = 1;
+	int					prevJacobsthal = 0;
 
 	while (jacobsthal <= n)
 	{	
@@ -121,7 +175,7 @@ std::vector<int> PmergeMe::jacobsthalSequence(size_t n)
 		prevJacobsthal = temp;
 	}
 
-	if (jacobsthal > n && sequence.size() < n)
+	if (sequence.size() < n)
 	{
 		for (int i = n; i > prevJacobsthal; i--)
 			sequence.push_back(i);
@@ -163,17 +217,8 @@ std::vector<int> PmergeMe::mergeInsertVector(std::vector<int> const & data)
 	
 	makePair(main, main, pend);
 
-	// std::cout << "Main: ";
-	// for (size_t i = 0; i < main.size(); i++)
-	// 	std::cout << main[i] << " ";
-	// std::cout << std::endl;
-
-	// std::cout << "Pend: ";
-	// for (size_t i = 0; i < pend.size(); i++)
-	// 	std::cout << pend[i] << " ";
-	// std::cout << std::endl;
-
 	main_pair = main;
+
 	jacobsthal = jacobsthalSequence(pend.size());
 
 	if (main.size() > 1)
@@ -182,13 +227,6 @@ std::vector<int> PmergeMe::mergeInsertVector(std::vector<int> const & data)
 	updatePend(pend, main, main_pair);
 
 	main_pair = main;
-
-	// std::cout << "Main: ";
-	// for (size_t i = 0; i < main.size(); i++)
-	// 	std::cout << main[i] << " ";
-	// std::cout << std::endl;
-	// if (left != -1)
-	// 	std::cout << "Leftover: " << left << std::endl;
 
 	main.insert(main.begin(), pend[0]);
 
@@ -207,20 +245,160 @@ std::vector<int> PmergeMe::mergeInsertVector(std::vector<int> const & data)
 		main.insert(pos, left);
 	}
 
-	// std::cout << "Main After: ";
-	// for (size_t i = 0; i < main.size(); i++)
-	// 	std::cout << main[i] << " ";
-	// std::cout << std::endl;
-
-	// std::cout << "Pend After: ";
-	// for (size_t i = 0; i < pend.size(); i++)
-	// 	std::cout << pend[i] << " ";
-	// std::cout << std::endl;
-
-
-	// 	std::cout << "Jacobsthal: ";
-	// for (size_t i = 0; i < jacobsthal.size(); i++)
-	// 	std::cout << jacobsthal[i] << " ";
-	// std::cout << std::endl;
 	return (main);
+}
+
+std::list<int>	PmergeMe::jacobsthalSequenceList(size_t n)
+{
+	std::list<int>		sequence;
+	size_t				jacobsthal = 1;
+	int					prevJacobsthal = 0;
+
+	while (jacobsthal <= n)
+	{	
+		for (int i = jacobsthal; i > prevJacobsthal; i--)
+			sequence.push_back(i);
+	
+		int temp = jacobsthal;
+		jacobsthal = jacobsthal + (2 * prevJacobsthal);
+		prevJacobsthal = temp;
+	}
+
+	if (sequence.size() < n)
+	{
+		for (int i = n; i > prevJacobsthal; i--)
+			sequence.push_back(i);
+	}
+	return (sequence);
+}
+
+void	PmergeMe::makePair(std::list<int> const & data, std::list<int> & main, std::list<int> & pend)
+{
+	size_t				size = data.size() % 2 == 0 ? data.size() : data.size() - 1;
+	std::list<int>		temp;
+
+	for (std::list<int>::const_iterator it = data.begin(); size > 0; )
+	{
+		int first = *it;
+		++it;
+		int second = *it;
+		++it;
+
+		if (first > second)
+		{
+			temp.push_back(first);
+			pend.push_back(second);
+		}
+		else
+		{
+			temp.push_back(second);
+			pend.push_back(first);
+		}
+		size -= 2;
+	}
+
+	main = temp;
+}
+
+void	PmergeMe::updatePend(std::list<int> & pend, std::list<int> & main, std::list<int> & main_pair)
+{
+	if (pend.empty())
+		return ;
+
+	std::list<int>		pend_ordered;
+
+	for (std::list<int>::iterator it = main.begin(); it != main.end(); ++it)
+	{
+		std::list<int>::iterator it_pair = std::find(main_pair.begin(), main_pair.end(), *it);
+		if (it_pair != main_pair.end())
+		{
+			size_t idx = std::distance(main_pair.begin(), it_pair);
+			std::list<int>::iterator it_pend = pend.begin();
+			std::advance(it_pend, idx);
+			if (it_pend != pend.end())
+				pend_ordered.push_back(*it_pend);
+		}
+	}
+
+	pend = pend_ordered;
+}
+
+
+std::list<int>	PmergeMe::mergeInsertList(std::list<int> const & data)
+{
+	if (data.size() == 1)
+		return (data);
+
+	std::list<int>		main_pair;
+	std::list<int>		main = data;
+	std::list<int> 		pend;
+	std::list<int>		jacobsthal;
+	int					left = data.size() % 2 != 0 ? data.back() : -1;
+	
+	makePair(main, main, pend);
+
+	main_pair = main;
+
+	jacobsthal = jacobsthalSequenceList(pend.size());
+
+	if (main.size() > 1)
+		main = mergeInsertList(main);
+	
+	updatePend(pend, main, main_pair);
+
+	main_pair = main;
+
+	main.push_front(pend.front());
+
+	for (std::list<int>::iterator it = jacobsthal.begin(); it != jacobsthal.end(); ++it)
+	{
+		if (*it == 1)
+			continue ;
+
+		std::list<int>::iterator	mainBound = main_pair.begin();
+		std::advance(mainBound, *it - 1);
+
+		std::list<int>::iterator	pendIt = pend.begin();
+		std::advance(pendIt, *it - 1);
+
+		std::list<int>::iterator	end = std::find(main.begin(), main.end(), *mainBound);
+		std::list<int>::iterator	pos = std::lower_bound(main.begin(), end, *pendIt);
+		
+		main.insert(pos, *pendIt);
+	}
+
+	if (left != -1)
+	{
+		std::list<int>::iterator	pos = std::lower_bound(main.begin(), main.end(), left);
+		main.insert(pos, left);
+	}
+
+	return (main);
+}
+
+bool	isSorted(std::vector<int> const & data)
+{
+	for (size_t i = 1; i < data.size(); i++)
+	{
+		if (data[i - 1] > data[i])
+			return (false);
+	}
+	return (true);
+}
+
+bool	isSorted(std::list<int> const & data)
+{
+	if (data.empty() == true)
+		return (true);
+
+	std::list<int>::const_iterator	prev = data.begin();
+	std::list<int>::const_iterator	it = prev;
+	++it;
+
+	for (; it != data.end(); ++it, ++prev)
+	{
+		if (*prev > *it)
+			return (false);
+	}
+	return (true);
 }

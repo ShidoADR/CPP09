@@ -54,9 +54,7 @@ void RPN::evaluate(std::string const & expression)
             continue;
 
         if (std::isdigit(token))
-        {
             _numbers.push(token - '0');
-        }
         else if (isOperator(token))
         {
             if (_numbers.size() < 2)
@@ -70,9 +68,7 @@ void RPN::evaluate(std::string const & expression)
             _numbers.push(result);
         }
         else
-        {
             throw std::runtime_error(std::string("Error: Invalid token '") + token + "'.");
-        }
     }
 
     if (_numbers.size() != 1)

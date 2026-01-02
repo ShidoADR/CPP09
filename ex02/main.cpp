@@ -4,8 +4,8 @@ int main(int argc, char **argv)
 {
 	if (argc < 2)
 	{
-		std::cout << "Error" << std::endl;
-		return 1;
+		std::cerr << "Error : Not enough arguments" << std::endl;
+		return (1);
 	}
 
 	std::string input;
@@ -22,11 +22,11 @@ int main(int argc, char **argv)
 	{
 		PmergeMe pmergeMe(input);
 
-		std::cout << pmergeMe << std::endl;
+		std::cerr << pmergeMe << std::endl;
 	}
 	catch(const std::exception& e)
 	{
-		std::cout << e.what() << std::endl;
+		std::cerr << e.what() << std::endl;
 		
 		return (1);
 	}

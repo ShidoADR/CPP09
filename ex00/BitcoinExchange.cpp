@@ -47,24 +47,45 @@ static bool	isLeapYear(int year)
 	return ((year % 4 == 0 && year % 100 != 0) || (year % 400 == 0));
 }
 
+
+static bool	isDigitString(std::string const & str)
+{
+	for (size_t i = 0; i < str.length(); i++)
+	{
+		if (!isdigit(str[i]))
+			return (false);
+	}
+	return (true);
+}
+
 static bool	isValidDate(std::string const & date)
 {
 	int	daysInMonth[] = DATE;
+	size_t	start = 0;
+	size_t	pos = date.find('-');
 
-	if (date.length() != 10 || date[4] != '-' || date[7] != '-')
+	if (pos == std::string::npos)
 		return (false);
+	std::string	yearStr = date.substr(start, pos);
 
-	for (int i = 0; i < 10; i++)
-	{
-		if (i == 4 || i == 7)
-			continue;
-		if (!isdigit(date[i]))
-			return (false);
-	}
+	start = pos + 1;
+	pos = date.find('-', start);
 
-	int year = atoi(date.substr(0, 4).c_str());
-	int month = atoi(date.substr(5, 2).c_str());
-	int day = atoi(date.substr(8, 2).c_str());
+	if (pos == std::string::npos)
+		return (false);
+	
+	std::string	monthStr = date.substr(start, pos - start);
+	std::string	dayStr = date.substr(pos + 1);
+
+	if (monthStr.length() != 2 || dayStr.length() != 2)
+		return (false);
+	
+	if (!isDigitString(yearStr) || !isDigitString(monthStr) || !isDigitString(dayStr))
+		return (false);
+	
+	int year = atoi(yearStr.c_str());
+	int month = atoi(monthStr.c_str());
+	int day = atoi(dayStr.c_str());
 
 	if (year < 0 || month < 1 || month > 12 || day < 1)
 		return (false);

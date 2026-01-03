@@ -230,13 +230,23 @@ std::vector<int> PmergeMe::mergeInsertVector(std::vector<int> const & data)
 
 	main.insert(main.begin(), pend[0]);
 
+	int	prevInserted = pend[0];
+	int	idxOffset = 0;
 
 	for (size_t i = 1; i < jacobsthal.size(); i++)
 	{
-		std::vector<int>::iterator	end = std::find(main.begin(), main.end(), main_pair[jacobsthal[i] - 1]);
-		std::vector<int>::iterator	pos = std::lower_bound(main.begin(), end, pend[jacobsthal[i] - 1]);
+		std::vector<int>::iterator	end = main.begin();
+		int							idx = main_pair[jacobsthal[i] - 1] > prevInserted ? jacobsthal[i] + idxOffset + 1 : jacobsthal[i] + idxOffset;
+
+		std::advance(end, idx);
+
+		prevInserted = pend[jacobsthal[i] - 1];
+
+		idxOffset += main_pair[jacobsthal[i] - 1] > prevInserted ? 1 : 0;
+
+		std::vector<int>::iterator	pos = std::lower_bound(main.begin(), end, prevInserted);
 		
-		main.insert(pos, pend[jacobsthal[i] - 1]);
+		main.insert(pos, prevInserted);
 	}
 	
 	if (left != -1)
@@ -350,6 +360,9 @@ std::list<int>	PmergeMe::mergeInsertList(std::list<int> const & data)
 
 	main.push_front(pend.front());
 
+	int	prevInserted = pend.front();
+	int	idxOffset = 0;
+
 	for (std::list<int>::iterator it = jacobsthal.begin(); it != jacobsthal.end(); ++it)
 	{
 		if (*it == 1)
@@ -361,10 +374,19 @@ std::list<int>	PmergeMe::mergeInsertList(std::list<int> const & data)
 		std::list<int>::iterator	pendIt = pend.begin();
 		std::advance(pendIt, *it - 1);
 
-		std::list<int>::iterator	end = std::find(main.begin(), main.end(), *mainBound);
-		std::list<int>::iterator	pos = std::lower_bound(main.begin(), end, *pendIt);
+		std::list<int>::iterator	end = main.begin();
+
+		int							idx = *mainBound > prevInserted ? *it + idxOffset + 1 : *it + idxOffset;
+
+		std::advance(end, idx);
+
+		prevInserted = *pendIt;
+
+		idxOffset += *mainBound > prevInserted ? 1 : 0;
+
+		std::list<int>::iterator	pos = std::lower_bound(main.begin(), end, prevInserted);
 		
-		main.insert(pos, *pendIt);
+		main.insert(pos, prevInserted);
 	}
 
 	if (left != -1)

@@ -134,7 +134,6 @@ PmergeMe::PmergeMe(std::string const & input)
 	end = std::clock();
 	_timeForList = static_cast<double>(end - start) / CLOCKS_PER_SEC;
 
-
 }
 
 void	PmergeMe::makePair(std::vector<int> const & data, std::vector<int> & main, std::vector<int> & pend)
@@ -219,13 +218,21 @@ std::vector<int> PmergeMe::mergeInsertVector(std::vector<int> const & data)
 
 	main_pair = main;
 
+	if (left != -1)
+		pend.push_back(left);
 	jacobsthal = jacobsthalSequence(pend.size());
 
 	if (main.size() > 1)
 		main = mergeInsertVector(main);
 	
+	if (left != -1)
+		pend.pop_back();
+
 	updatePend(pend, main, main_pair);
 
+	if (left != -1)
+		pend.push_back(left);
+	
 	main_pair = main;
 
 	main.insert(main.begin(), pend[0]);
@@ -235,24 +242,29 @@ std::vector<int> PmergeMe::mergeInsertVector(std::vector<int> const & data)
 
 	for (size_t i = 1; i < jacobsthal.size(); i++)
 	{
-		std::vector<int>::iterator	end = main.begin();
-		int							idx = main_pair[jacobsthal[i] - 1] > prevInserted ? jacobsthal[i] + idxOffset + 1 : jacobsthal[i] + idxOffset;
+		std::vector<int>::iterator	pos;
+		if (left != -1 && static_cast<size_t>(jacobsthal[i]) == pend.size())
+		{
+			prevInserted = pend[jacobsthal[i] - 1];
+			idxOffset += main_pair[jacobsthal[i] - 2] > prevInserted ? 1 : 0;
+			pos = std::lower_bound(main.begin(), main.end(), prevInserted);
+		}
+		else
+		{
+			std::vector<int>::iterator	end = main.begin();
+			int							idx = main_pair[jacobsthal[i] - 1] > prevInserted ? jacobsthal[i] + idxOffset + 1 : jacobsthal[i] + idxOffset;
 
-		std::advance(end, idx);
+			std::advance(end, idx);
 
-		prevInserted = pend[jacobsthal[i] - 1];
+			prevInserted = pend[jacobsthal[i] - 1];
 
-		idxOffset += main_pair[jacobsthal[i] - 1] > prevInserted ? 1 : 0;
+			idxOffset += main_pair[jacobsthal[i] - 1] > prevInserted ? 1 : 0;
 
-		std::vector<int>::iterator	pos = std::lower_bound(main.begin(), end, prevInserted);
+			pos = std::lower_bound(main.begin(), end, prevInserted);
+		}
+		
 		
 		main.insert(pos, prevInserted);
-	}
-	
-	if (left != -1)
-	{
-		std::vector<int>::iterator	pos = std::lower_bound(main.begin(), main.end(), left);
-		main.insert(pos, left);
 	}
 
 	return (main);
@@ -349,12 +361,21 @@ std::list<int>	PmergeMe::mergeInsertList(std::list<int> const & data)
 
 	main_pair = main;
 
+	if (left != -1)
+		pend.push_back(left);
+
 	jacobsthal = jacobsthalSequenceList(pend.size());
 
 	if (main.size() > 1)
 		main = mergeInsertList(main);
 	
+	if (left != -1)
+		pend.pop_back();
+
 	updatePend(pend, main, main_pair);
+
+	if (left != -1)
+		pend.push_back(left);
 
 	main_pair = main;
 
@@ -374,6 +395,20 @@ std::list<int>	PmergeMe::mergeInsertList(std::list<int> const & data)
 		std::list<int>::iterator	pendIt = pend.begin();
 		std::advance(pendIt, *it - 1);
 
+		if (left != -1 && static_cast<size_t>(*it) == pend.size())
+		{
+			mainBound--;
+			prevInserted = *pendIt;
+
+			idxOffset += *mainBound > prevInserted ? 1 : 0;
+	
+			std::list<int>::iterator	pos = std::lower_bound(main.begin(), main.end(), prevInserted);
+
+			main.insert(pos, prevInserted);
+
+			continue ;
+		}
+
 		std::list<int>::iterator	end = main.begin();
 
 		int							idx = *mainBound > prevInserted ? *it + idxOffset + 1 : *it + idxOffset;
@@ -387,12 +422,6 @@ std::list<int>	PmergeMe::mergeInsertList(std::list<int> const & data)
 		std::list<int>::iterator	pos = std::lower_bound(main.begin(), end, prevInserted);
 		
 		main.insert(pos, prevInserted);
-	}
-
-	if (left != -1)
-	{
-		std::list<int>::iterator	pos = std::lower_bound(main.begin(), main.end(), left);
-		main.insert(pos, left);
 	}
 
 	return (main);

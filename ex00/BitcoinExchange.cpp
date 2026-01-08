@@ -77,7 +77,7 @@ static bool	isValidDate(std::string const & date)
 	std::string	monthStr = date.substr(start, pos - start);
 	std::string	dayStr = date.substr(pos + 1);
 
-	if (monthStr.length() != 2 || dayStr.length() != 2)
+	if (monthStr.length() <= 0 || monthStr.length() > 2 || dayStr.length() <= 0 || dayStr.length() > 2)
 		return (false);
 	
 	if (!isDigitString(yearStr) || !isDigitString(monthStr) || !isDigitString(dayStr))
@@ -96,7 +96,6 @@ static bool	isValidDate(std::string const & date)
 
 	if (day > maxDay)
 		return (false);
-
 	return (true);
 }
 
@@ -132,6 +131,20 @@ static bool	isValidValue(std::string const & value)
 	return (true);
 }
 
+static std::string	trim(std::string const & str)
+{
+	size_t	start = 0;
+	size_t	end = str.length();
+
+	while (start < end && std::isspace(str[start]))
+		start++;
+
+	while (end > start && std::isspace(str[end - 1]))
+		end--;
+
+	return (str.substr(start, end - start));
+}
+
 bool	BitcoinExchange::readData()
 {
 	std::ifstream	input;
@@ -143,6 +156,8 @@ bool	BitcoinExchange::readData()
 	
 	while (std::getline (input, buffer))
 	{
+		buffer = trim(buffer);
+
 		if (line == 0)
 		{
 			if (buffer == "date,exchange_rate")
@@ -198,20 +213,6 @@ bool	BitcoinExchange::readData()
 	return (true);
 }
 
-static std::string	trim(std::string const & str)
-{
-	size_t	start = 0;
-	size_t	end = str.length();
-
-	while (start < end && std::isspace(str[start]))
-		start++;
-
-	while (end > start && std::isspace(str[end - 1]))
-		end--;
-
-	return (str.substr(start, end - start));
-}
-
 bool	BitcoinExchange::printExchange(std::string const & inputFile)
 {
 	std::ifstream	input;
@@ -223,10 +224,21 @@ bool	BitcoinExchange::printExchange(std::string const & inputFile)
 
 	while (std::getline(input, buffer))
 	{
+		buffer = trim(buffer);
+
 		if (firstLine)
 		{
-			firstLine = false;
-			continue;
+			if (buffer == "date | value")
+			{
+				firstLine = false;
+				continue ;
+			}
+			else
+			{
+				input.close();
+				std::cout << "Error: invalid header format." << std::endl;
+				return (false);
+			}
 		}
 
 		size_t pipePos = buffer.find('|');

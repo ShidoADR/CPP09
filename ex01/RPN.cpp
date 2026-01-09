@@ -46,25 +46,27 @@ int RPN::performOperation(int a, int b, char op) const
 
 void RPN::evaluate(std::string const & expression)
 {
-    for (size_t i = 0; i < expression.length(); ++i)
-    {
-        char token = expression[i];
+    std::stringstream   ss(expression);
+    std::string         token;
 
-        if (std::isspace(token))
+    for (; ss >> token;)
+    {
+        if (token.size() != 1)
+            throw std::runtime_error("Error : invalid input");
+    
+        if (std::isspace(token[0]))
             continue;
 
-        if (std::isdigit(token))
-            _numbers.push(token - '0');
-        else if (isOperator(token))
+        if (std::isdigit(token[0]))
+            _numbers.push(token[0] - '0');
+        else if (isOperator(token[0]))
         {
             if (_numbers.size() < 2)
-            {
                 throw std::runtime_error("Error: Insufficient values in the expression.");
-            }
 
             int b = _numbers.top(); _numbers.pop();
             int a = _numbers.top(); _numbers.pop();
-            int result = performOperation(a, b, token);
+            int result = performOperation(a, b, token[0]);
             _numbers.push(result);
         }
         else

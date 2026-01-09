@@ -77,7 +77,7 @@ static bool	isValidDate(std::string const & date)
 	std::string	monthStr = date.substr(start, pos - start);
 	std::string	dayStr = date.substr(pos + 1);
 
-	if (monthStr.length() <= 0 || monthStr.length() > 2 || dayStr.length() <= 0 || dayStr.length() > 2)
+	if (monthStr.length() != 2 || dayStr.length() != 2 || yearStr.length() != 4)
 		return (false);
 	
 	if (!isDigitString(yearStr) || !isDigitString(monthStr) || !isDigitString(dayStr))

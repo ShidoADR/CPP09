@@ -246,7 +246,7 @@ std::vector<int> PmergeMe::mergeInsertVector(std::vector<int> const & data)
 		if (left != -1 && static_cast<size_t>(jacobsthal[i]) == pend.size())
 		{
 			prevInserted = pend[jacobsthal[i] - 1];
-			idxOffset += main_pair[jacobsthal[i] - 2] > prevInserted ? 1 : 0;
+			idxOffset += 1;
 			pos = std::lower_bound(main.begin(), main.end(), prevInserted);
 		}
 		else
@@ -258,7 +258,7 @@ std::vector<int> PmergeMe::mergeInsertVector(std::vector<int> const & data)
 
 			prevInserted = pend[jacobsthal[i] - 1];
 
-			idxOffset += main_pair[jacobsthal[i] - 1] > prevInserted ? 1 : 0;
+			idxOffset += 1;
 
 			pos = std::lower_bound(main.begin(), end, prevInserted);
 		}
@@ -400,7 +400,7 @@ std::list<int>	PmergeMe::mergeInsertList(std::list<int> const & data)
 			mainBound--;
 			prevInserted = *pendIt;
 
-			idxOffset += *mainBound > prevInserted ? 1 : 0;
+			idxOffset += 1;
 	
 			std::list<int>::iterator	pos = std::lower_bound(main.begin(), main.end(), prevInserted);
 
@@ -417,7 +417,7 @@ std::list<int>	PmergeMe::mergeInsertList(std::list<int> const & data)
 
 		prevInserted = *pendIt;
 
-		idxOffset += *mainBound > prevInserted ? 1 : 0;
+		idxOffset += 1;
 
 		std::list<int>::iterator	pos = std::lower_bound(main.begin(), end, prevInserted);
 		

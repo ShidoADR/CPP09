@@ -158,6 +158,9 @@ bool	BitcoinExchange::readData()
 	{
 		buffer = trim(buffer);
 
+		if (buffer.empty())
+			continue;
+		
 		if (line == 0)
 		{
 			if (buffer == "date,exchange_rate")
@@ -225,6 +228,10 @@ bool	BitcoinExchange::printExchange(std::string const & inputFile)
 	while (std::getline(input, buffer))
 	{
 		buffer = trim(buffer);
+
+
+		if (buffer.empty())
+			continue;
 
 		if (firstLine)
 		{
